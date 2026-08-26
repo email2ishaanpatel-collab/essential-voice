@@ -9,9 +9,13 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.withContext
 import org.json.JSONArray
+import org.json.JSONException
 import org.json.JSONObject
+import java.io.IOException
 import java.net.HttpURLConnection
+import java.net.SocketTimeoutException
 import java.net.URL
+import java.net.UnknownHostException
 
 /**
  * Tells you a newer build exists. Deliberately does not install it.
@@ -143,10 +147,33 @@ object Updater {
                     State.UpToDate(System.currentTimeMillis(), release)
                 }
             },
-            onFailure = { State.Failed(it.message ?: "Could not reach the update server") },
+            onFailure = { State.Failed(readableError(it)) },
         )
         _state.value = next
         next
+    }
+
+    /**
+     * Say what went wrong in a sentence a person can act on.
+     *
+     * The exception's own message used to go straight to the screen, so a weak
+     * signal produced "Unable to resolve host raw.githubusercontent.com: No
+     * address associated with hostname" — which is true, and tells someone
+     * holding a phone nothing. Every failure here is one of three things: no
+     * connection, a server that did not answer, or a manifest that did not
+     * parse. Those are worth telling apart; the stack trace is not.
+     */
+    private fun readableError(t: Throwable): String = when (t) {
+        is UnknownHostException ->
+            "No internet connection. The check needs one \u2014 it reads a small " +
+                "file from GitHub."
+        is SocketTimeoutException ->
+            "The update server took too long to answer. Try again in a moment."
+        is JSONException ->
+            "The update server answered with something unreadable."
+        is IOException ->
+            "Could not reach the update server. Check your connection."
+        else -> t.message ?: "The update check did not work."
     }
 
     /**
