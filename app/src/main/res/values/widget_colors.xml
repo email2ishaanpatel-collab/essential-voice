@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The widget cannot read the Kotlin palette in ui/Theme.kt — a RemoteViews
+  layout is inflated by the launcher, in the launcher's process, from resources
+  alone. So the handful of colours it needs are mirrored here, with a
+  values-night copy the system picks for itself. Keep the two files in step
+  with LightPalette and DarkPalette.
+-->
+<resources>
+    <!--
+      The card fill, with the wallpaper showing through it.
+
+      This is as close to the floating bar's frosted glass as a widget can get,
+      and the gap is worth writing down: the bar blurs the page because the app
+      recorded what it drew and blurred its own copy. A widget is a RemoteViews
+      tree inflated in the *launcher's* process and has no access to the pixels
+      behind it — View.setRenderEffect is not a @RemotableViewMethod, and the
+      only window-level blur API belongs to whoever owns the window, which is
+      the launcher. Reading the wallpaper to blur it here would mean a storage
+      permission on an app that is already fighting Play Protect, for a picture
+      that would not move when the home screen scrolled. So: transparency, no
+      blur. Raise the alpha if a busy wallpaper makes the notes hard to read.
+    -->
+    <color name="widget_surface">#D6FDFDFD</color>
+    <color name="widget_surface_sunk">#EBEBEB</color>
+    <color name="widget_divider">#F0F0F0</color>
+    <color name="widget_ink">#1B1B1D</color>
+    <color name="widget_ink_muted">#77777C</color>
+    <color name="widget_ink_faint">#A8A8AD</color>
+
+    <!--
+      The buds card when the buds are connected. Green, and the ink
+      that is legible on it — the same pair the pill carries, and deliberately
+      not a second "widget yellow". It does not change after dark, for the
+      reason ui/Theme.kt gives: a dark-mode yellow is just a second brand
+      colour. Its values-night copy is identical on purpose.
+    -->
+    <color name="widget_connected">#00D26A</color>
+    <color name="widget_on_connected">#00220F</color>
+    <color name="widget_on_connected_dim">#0A4A26</color>
+</resources>

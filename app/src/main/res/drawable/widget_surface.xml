@@ -1,0 +1,7 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- A card, the same as every card in the app: a fill, a radius, nothing else.
+     No stroke and no elevation — see ui/Components.kt Panel. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_surface" />
+    <corners android:radius="24dp" />
+</shape>

@@ -1,0 +1,12 @@
+<!-- The phone seen edge-on, exported from the Figma redesign. The dotted
+     scale and the volume bar that sit beside it are drawn in Compose, so
+     they can follow the palette; only the silhouette is shipped. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="32.264dp"
+    android:height="177dp"
+    android:viewportWidth="32.2637"
+    android:viewportHeight="177">
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M8.84961 14.0241C8.84961 18.7612 11.2411 23.1783 15.208 25.7677L18.8867 28.1689C27.2321 33.6156 32.2637 42.9075 32.2637 52.873V129.282C32.2635 139.821 26.6409 149.56 17.5137 154.83L14.2918 156.69C10.9242 158.634 8.84961 162.227 8.84961 166.116V172.575C8.84961 175.019 6.86856 177 4.4248 177C1.98105 177 0 175.019 0 172.575V4.42481C0 1.98105 1.98105 0 4.4248 0C6.86856 0 8.84961 1.98105 8.84961 4.4248V14.0241Z" />
+</vector>

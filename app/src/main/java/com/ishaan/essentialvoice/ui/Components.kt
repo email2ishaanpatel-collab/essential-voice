@@ -21,6 +21,12 @@ import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.ui.layout.onSizeChanged
+import androidx.compose.ui.input.pointer.pointerInput
+import androidx.compose.runtime.setValue
+import androidx.compose.runtime.mutableFloatStateOf
+import androidx.compose.foundation.gestures.detectTapGestures
+import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
@@ -43,13 +49,6 @@ fun SectionLabel(text: String, modifier: Modifier = Modifier) {
         modifier = modifier.padding(start = 4.dp, top = 30.dp, bottom = 10.dp),
         verticalAlignment = Alignment.CenterVertically,
     ) {
-        Box(
-            Modifier
-                .size(6.dp)
-                .clip(CircleShape)
-                .background(EV.Yellow),
-        )
-        Spacer(Modifier.width(9.dp))
         EvText(text.uppercase(), LocalEvType.current.label)
     }
 }
@@ -225,8 +224,8 @@ fun EvButton(
             !enabled -> EV.SurfaceSunk
             kind == EvButtonKind.Primary && pressed -> EV.InkMuted
             kind == EvButtonKind.Primary -> EV.Ink
-            kind == EvButtonKind.Danger && pressed -> Color(0xFFF0D2D3)
-            kind == EvButtonKind.Danger -> Color(0xFFFAE9EA)
+            kind == EvButtonKind.Danger && pressed -> EV.DangerFillSunk
+            kind == EvButtonKind.Danger -> EV.DangerFill
             pressed -> EV.SurfaceSunk
             else -> EV.Background
         },
@@ -268,6 +267,72 @@ fun EvProgress(fraction: Float, modifier: Modifier = Modifier) {
                 .height(6.dp)
                 .clip(RoundedCornerShape(3.dp))
                 .background(EV.Yellow),
+        )
+    }
+}
+
+/**
+ * A value dragged rather than stepped.
+ *
+ * Here for the settings that are answers to "how big should it be" — questions
+ * only the person looking at the phone can answer, and ones a pair of ± buttons
+ * turns into twenty taps. Stepped values keep their steppers; this is for the
+ * ones with a range wide enough that arriving at a number is the work.
+ *
+ * The knob is a fill on the track, not a floating handle: nothing in this kit
+ * casts a shadow or sits above its own surface.
+ */
+@Composable
+fun EvSlider(
+    value: Int,
+    range: IntRange,
+    modifier: Modifier = Modifier,
+    onChange: (Int) -> Unit,
+) {
+    val span = (range.last - range.first).coerceAtLeast(1)
+    val fraction = ((value - range.first).toFloat() / span).coerceIn(0f, 1f)
+    var widthPx by remember { mutableFloatStateOf(0f) }
+
+    fun emit(x: Float) {
+        if (widthPx <= 0f) return
+        val f = (x / widthPx).coerceIn(0f, 1f)
+        onChange((range.first + Math.round(f * span)).coerceIn(range.first, range.last))
+    }
+
+    Box(
+        modifier
+            .fillMaxWidth()
+            // A thin track is hard to catch; the row is tall enough to grab and
+            // the track is drawn inside it.
+            .height(38.dp)
+            .onSizeChanged { widthPx = it.width.toFloat() }
+            .pointerInput(range) {
+                detectDragGestures(
+                    onDragStart = { emit(it.x) },
+                    onDrag = { change, _ ->
+                        change.consume()
+                        emit(change.position.x)
+                    },
+                )
+            }
+            .pointerInput(range) {
+                detectTapGestures { emit(it.x) }
+            },
+        contentAlignment = Alignment.CenterStart,
+    ) {
+        Box(
+            Modifier
+                .fillMaxWidth()
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(EV.SurfaceSunk),
+        )
+        Box(
+            Modifier
+                .fillMaxWidth(fraction)
+                .height(10.dp)
+                .clip(RoundedCornerShape(5.dp))
+                .background(EV.Ink),
         )
     }
 }

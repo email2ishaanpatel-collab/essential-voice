@@ -3,14 +3,32 @@
   flagRequestFilterKeyEvents is the whole point: it is what lets the service see
   the Essential Key go down and, more importantly, come back up. Window content
   retrieval is what lets the finished text be pasted into the focused field.
+
+  typeNotificationStateChanged is how the app sees what is playing. A MediaStyle
+  notification carries its own MediaSession.Token in EXTRA_MEDIA_SESSION, and
+  that token is the only route to now-playing that does not require being a
+  NotificationListenerService — which Play Protect hard-blocks on a sideloaded
+  APK. See media/NowPlaying.kt.
+
+  What is *not* here matters as much. Subscribing to typeWindowContentChanged,
+  as this used to, makes the framework build and marshal an AccessibilityEvent
+  for every scroll, animation and text change in every app on the phone, all
+  day, to hand to a method that drops them. That is invisible in the app's own
+  CPU time and expensive everywhere else. A notification being posted is a far
+  rarer event, which is what makes this one affordable.
+
+  flagRetrieveInteractiveWindows is gone for the same reason: it keeps the
+  window hierarchy of every interactive window continuously computed, and is
+  only needed by services that call getWindows(). Pasting uses findFocus(), for
+  which canRetrieveWindowContent alone is enough.
 -->
 <accessibility-service xmlns:android="http://schemas.android.com/apk/res/android"
-    android:accessibilityEventTypes="typeWindowContentChanged|typeViewFocused"
+    android:accessibilityEventTypes="typeNotificationStateChanged"
     android:accessibilityFeedbackType="feedbackGeneric"
-    android:accessibilityFlags="flagDefault|flagRequestFilterKeyEvents|flagRetrieveInteractiveWindows|flagIncludeNotImportantViews"
+    android:accessibilityFlags="flagDefault|flagRequestFilterKeyEvents"
     android:canRequestFilterKeyEvents="true"
     android:canRetrieveWindowContent="true"
     android:description="@string/accessibility_description"
-    android:notificationTimeout="100"
+    android:notificationTimeout="1000"
     android:settingsActivity="com.ishaan.essentialvoice.MainActivity"
     android:summary="@string/accessibility_summary" />

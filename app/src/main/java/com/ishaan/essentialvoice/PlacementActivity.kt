@@ -1,11 +1,13 @@
 package com.ishaan.essentialvoice
 
+import android.content.res.Configuration
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.background
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.gestures.detectDragGestures
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -28,6 +30,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.input.pointer.pointerInput
 import androidx.compose.ui.graphics.graphicsLayer
@@ -41,6 +44,9 @@ import com.ishaan.essentialvoice.ui.EvButtonKind
 import com.ishaan.essentialvoice.ui.EssentialVoiceTheme
 import com.ishaan.essentialvoice.ui.EvText
 import com.ishaan.essentialvoice.ui.LocalEvType
+import androidx.compose.runtime.mutableIntStateOf
+import com.ishaan.essentialvoice.ui.EvSlider
+import com.ishaan.essentialvoice.volume.VolumeSliderView
 import com.ishaan.essentialvoice.voice.PillView
 import kotlinx.coroutines.delay
 import kotlin.math.abs
@@ -53,16 +59,45 @@ import kotlin.math.abs
  */
 class PlacementActivity : ComponentActivity() {
 
+    companion object {
+        /** Place the volume slider rather than the pill. */
+        const val EXTRA_VOLUME = "volume"
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
-        WindowCompat.getInsetsController(window, window.decorView)
-            .isAppearanceLightStatusBars = true
+        val dark = (resources.configuration.uiMode and Configuration.UI_MODE_NIGHT_MASK) ==
+            Configuration.UI_MODE_NIGHT_YES
+        EV.useDark(dark)
+        WindowCompat.getInsetsController(window, window.decorView).apply {
+            isAppearanceLightStatusBars = !dark
+            isAppearanceLightNavigationBars = !dark
+        }
 
         val prefs = Prefs.get(this)
 
+        val volume = intent?.getBooleanExtra(EXTRA_VOLUME, false) == true
+
         setContent {
-            EssentialVoiceTheme {
+            EssentialVoiceTheme(dark = dark) {
+                if (volume) {
+                    VolumePlacementScreen(
+                        initialLeft = prefs.now.volumeSide == Prefs.SIDE_LEFT,
+                        initialY = prefs.now.volumeY,
+                        initialLength = prefs.now.volumeHeightDp,
+                        initialWidth = prefs.now.volumeWidthDp,
+                        onSave = { left, y, len, wide ->
+                            prefs.setVolumeSide(if (left) Prefs.SIDE_LEFT else Prefs.SIDE_RIGHT)
+                            prefs.setVolumeY(y)
+                            prefs.setVolumeHeightDp(len)
+                            prefs.setVolumeWidthDp(wide)
+                            finish()
+                        },
+                        onCancel = { finish() },
+                    )
+                    return@EssentialVoiceTheme
+                }
                 PlacementScreen(
                     initialX = prefs.now.pillX,
                     initialY = prefs.now.pillY,
@@ -173,7 +208,9 @@ private fun PlacementScreen(
             var t = 0f
             while (true) {
                 t += 0.55f
-                v.pushLevel(0.18f + 0.34f * (1f + kotlin.math.sin(t.toDouble()).toFloat()) / 2f)
+                // Already shaped, like every other caller since the engines
+                // stopped disagreeing about the scale.
+                v.pushLevel(0.5f + 0.5f * (1f + kotlin.math.sin(t.toDouble()).toFloat()) / 2f)
                 delay(70)
             }
         }
@@ -280,6 +317,206 @@ private fun DotBackdrop(columns: FloatArray, snapped: Boolean) {
                 Offset(size.width * c, size.height),
                 strokeWidth = if (snapped) 3f else 1.5f,
             )
+        }
+    }
+}
+
+
+/**
+ * Where the volume slider sits, and how long it is.
+ *
+ * The same idea as the pill's screen and deliberately not the same gesture: this
+ * shape is *attached* to a border, so there is no x to drag. Sideways means the
+ * other edge — drag past the middle and it changes sides — and up and down is
+ * the only real position there is. The length is a slider rather than a stepper
+ * because it spans three hundred dp and nobody arrives at the right one by
+ * tapping a plus sign forty times.
+ *
+ * It is the real [VolumeSliderView], not a mock-up, so what is dragged here is
+ * exactly what appears over other apps — which is the whole reason this screen
+ * cannot sit on the app's own page colour. The slider's enclosure is pure black
+ * and the dark palette's page is true black, so on this one screen the two were
+ * the same colour and there was nothing to drag but a column of white dots. The
+ * page is a step lighter here, and only here: it is a canvas the object is being
+ * placed on rather than the app's background.
+ *
+ * Length and width both live on this screen. They were a slider in the settings
+ * list and a constant in the code, which meant the two questions the screen
+ * exists to answer — where does it go, and how big is it — were answered in two
+ * different places, only one of which shows you the answer.
+ */
+@Composable
+private fun VolumePlacementScreen(
+    initialLeft: Boolean,
+    initialY: Float,
+    initialLength: Int,
+    initialWidth: Int,
+    onSave: (Boolean, Float, Int, Int) -> Unit,
+    onCancel: () -> Unit,
+) {
+    val type = LocalEvType.current
+    val density = LocalDensity.current
+
+    var onLeft by remember { mutableStateOf(initialLeft) }
+    var rawY by remember { mutableFloatStateOf(initialY) }
+    var length by remember { mutableIntStateOf(initialLength) }
+    var thickness by remember { mutableIntStateOf(initialWidth) }
+
+    BoxWithConstraints(
+        Modifier
+            .fillMaxSize()
+            .background(EV.SurfaceSunk),
+    ) {
+        val wPx = with(density) { maxWidth.toPx() }
+        val hPx = with(density) { maxHeight.toPx() }
+        val boxW = with(density) { thickness.dp.toPx() }
+        val boxH = with(density) {
+            VolumeSliderView.windowHeightDp(length.toFloat()).dp.toPx()
+        }
+
+        DotBackdrop(floatArrayOf(), false)
+
+        Box(
+            Modifier
+                .size(
+                    thickness.dp,
+                    VolumeSliderView.windowHeightDp(length.toFloat()).dp,
+                )
+                .graphicsLayer {
+                    translationX = if (onLeft) 0f else (wPx - boxW).coerceAtLeast(0f)
+                    translationY =
+                        (rawY * hPx - boxH / 2f).coerceIn(0f, (hPx - boxH).coerceAtLeast(0f))
+                },
+        ) {
+            AndroidView(
+                factory = { ctx ->
+                    VolumeSliderView(ctx).apply {
+                        // A stand-in reading, so the preview shows a real
+                        // slider rather than an empty enclosure.
+                        columns = listOf(
+                            VolumeSliderView.Col(
+                                stream = 3,
+                                icon = R.drawable.ic_vol_media,
+                                level = 10,
+                                max = 16,
+                                vibrate = false,
+                            ),
+                        )
+                        refreshAll()
+                    }
+                },
+                update = {
+                    it.onLeft = onLeft
+                    it.thicknessDp = thickness.toFloat()
+                },
+                modifier = Modifier.fillMaxSize(),
+            )
+        }
+
+        Box(
+            Modifier
+                .fillMaxSize()
+                .pointerInput(wPx, hPx) {
+                    detectDragGestures(
+                        onDrag = { change, _ ->
+                            change.consume()
+                            // Which half the finger is in *is* which edge it is
+                            // on. Nothing to accumulate: there are two answers.
+                            onLeft = change.position.x < wPx / 2f
+                            rawY = (change.position.y / hPx).coerceIn(0.03f, 0.97f)
+                        },
+                    )
+                },
+        )
+
+        // The page's own margin on both sides. It used to carry a further 52dp
+        // of start padding to clear the slider, which is 38dp wide and only on
+        // screen when it has been dragged to the top — so the words were pushed
+        // a third of the way across the screen to miss something that is
+        // usually nowhere near them.
+        Column(
+            Modifier
+                .align(Alignment.TopStart)
+                .fillMaxWidth()
+                .padding(EV.PagePadding)
+                .padding(top = 34.dp),
+        ) {
+            EvText("Drag the slider", type.display)
+            Spacer(Modifier.height(8.dp))
+            EvText(
+                "Up and down for where it sits. Across the middle to put it on " +
+                    "the other edge.",
+                type.sub,
+            )
+            Spacer(Modifier.height(12.dp))
+            EvText(
+                "%s   \u00b7   %d%% DOWN   \u00b7   %d \u00d7 %ddp".format(
+                    if (onLeft) "LEFT" else "RIGHT",
+                    (rawY * 100).toInt(),
+                    thickness,
+                    length,
+                ),
+                type.label,
+                color = EV.Ink,
+            )
+        }
+
+        // Same margin as the top, and for a sharper reason: the button row was
+        // laid out inside 46dp of start padding and 12 of end, which left it
+        // three dp narrower than the three buttons in it — and the three dp
+        // that went missing were the right-hand end of Save.
+        Column(
+            Modifier
+                .align(Alignment.BottomStart)
+                .fillMaxWidth()
+                .padding(EV.PagePadding)
+                .padding(bottom = 26.dp)
+                // On a plate of its own, and it has to be: the page is
+                // [EV.SurfaceSunk] here so the black slider has something to
+                // show up against, and a slider's *track* is that same colour —
+                // so the two length controls below were a white fill running
+                // along an invisible rail, with nothing to say how much further
+                // it could go. The panel puts the track back on a different
+                // colour from the page.
+                .clip(RoundedCornerShape(EV.CornerCard))
+                .background(EV.Surface)
+                .padding(18.dp),
+        ) {
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                EvText("Length", type.body, Modifier.weight(1f))
+                EvText("${length}dp", type.mono, color = EV.Ink)
+            }
+            Spacer(Modifier.height(6.dp))
+            EvSlider(value = length, range = 90..400) { length = it }
+
+            Spacer(Modifier.height(14.dp))
+            Row(Modifier.fillMaxWidth(), verticalAlignment = Alignment.CenterVertically) {
+                EvText("Width", type.body, Modifier.weight(1f))
+                EvText("${thickness}dp", type.mono, color = EV.Ink)
+            }
+            Spacer(Modifier.height(6.dp))
+            EvSlider(
+                value = thickness,
+                range = VolumeSliderView.MIN_WIDTH_DP.toInt()..
+                    VolumeSliderView.MAX_WIDTH_DP.toInt(),
+            ) { thickness = it }
+
+            Spacer(Modifier.height(16.dp))
+            // fillMaxWidth is load-bearing, not tidiness: without it the Row
+            // wraps its content, the weighted Spacer has nothing to expand into,
+            // and the three buttons overflow the screen — which drops "Save" off
+            // the end entirely rather than making it look wrong.
+            Row(Modifier.fillMaxWidth(), horizontalArrangement = Arrangement.spacedBy(10.dp)) {
+                EvButton("Cancel", kind = EvButtonKind.Quiet, onClick = onCancel)
+                EvButton("Reset", kind = EvButtonKind.Quiet) {
+                    onLeft = true
+                    rawY = 0.55f
+                    length = VolumeSliderView.HEIGHT_DP.toInt()
+                    thickness = VolumeSliderView.WIDTH_DP.toInt()
+                }
+                Spacer(Modifier.weight(1f))
+                EvButton("Save") { onSave(onLeft, rawY, length, thickness) }
+            }
         }
     }
 }

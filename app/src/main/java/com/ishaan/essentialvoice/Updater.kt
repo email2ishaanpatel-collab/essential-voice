@@ -78,14 +78,9 @@ object Updater {
     private val _state = MutableStateFlow<State>(State.Idle)
     val state: StateFlow<State> = _state
 
-    fun installedVersionCode(context: Context): Int {
-        val info = context.packageManager.getPackageInfo(context.packageName, 0)
-        return if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
-            info.longVersionCode.toInt()
-        } else {
-            @Suppress("DEPRECATION") info.versionCode
-        }
-    }
+    fun installedVersionCode(context: Context): Int =
+        context.packageManager.getPackageInfo(context.packageName, 0)
+            .longVersionCode.toInt()
 
     fun installedVersionName(context: Context): String =
         context.packageManager.getPackageInfo(context.packageName, 0).versionName ?: "?"

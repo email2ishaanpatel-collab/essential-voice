@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The notes card, on the home screen.
+
+  Same shape as the panel inside the app, because it is the same list: a yellow
+  pip, a mono heading, and the notes under it. Everything here has to survive
+  being inflated by the launcher from a RemoteViews, which is why the colours
+  are resources rather than the Kotlin palette and why the list is a plain
+  ListView — those are the only collection views a widget is allowed.
+-->
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:background="@drawable/widget_surface"
+    android:padding="14dp">
+
+    <LinearLayout
+        android:id="@+id/widget_header"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        android:gravity="center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="0dp"
+        android:paddingBottom="10dp">
+
+        <TextView
+            android:id="@+id/widget_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/widget_heading"
+            android:textColor="@color/widget_ink_muted"
+            android:textSize="11sp"
+            android:letterSpacing="0.145"
+            android:maxLines="1"
+            android:ellipsize="end"
+            android:fontFamily="@font/geist_mono_medium" />
+
+        <!-- An ImageView, so the cross is centred by geometry rather than by
+             font metrics. As a TextView the drawn "+" sat 2dp low. -->
+        <ImageView
+            android:id="@+id/widget_add"
+            android:layout_width="30dp"
+            android:layout_height="30dp"
+            android:background="@drawable/widget_add"
+            android:scaleType="center"
+            android:src="@drawable/widget_plus"
+            android:contentDescription="@string/widget_add_description" />
+    </LinearLayout>
+
+    <ListView
+        android:id="@+id/widget_list"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:divider="@color/widget_divider"
+        android:dividerHeight="1dp"
+        android:scrollbars="none"
+        android:clipToPadding="false" />
+
+    <TextView
+        android:id="@+id/widget_empty"
+        android:layout_width="match_parent"
+        android:layout_height="0dp"
+        android:layout_weight="1"
+        android:gravity="start|center_vertical"
+        android:paddingStart="4dp"
+        android:paddingEnd="4dp"
+        android:text="@string/widget_empty"
+        android:textColor="@color/widget_ink_muted"
+        android:textSize="13sp"
+        android:lineSpacingExtra="4sp"
+        android:fontFamily="@font/geist_regular" />
+</LinearLayout>

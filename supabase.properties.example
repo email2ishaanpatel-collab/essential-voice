@@ -1,0 +1,13 @@
+# The likes backend. Copy to supabase.properties and fill in.
+#
+# Both come from the Supabase dashboard: Project Settings → API.
+#   url     – the Project URL, no trailing slash
+#   anonKey – the anon/public key, NOT the service_role key
+#
+# The anon key is public by design; it ships inside the APK and anyone who wants
+# it has it. That is safe here only because the table has row level security on
+# with no policies, so the key can do nothing but call the two functions in
+# supabase/likes.sql. The service_role key bypasses all of that and must never
+# be put in this file.
+url=https://YOUR-PROJECT.supabase.co
+anonKey=YOUR-ANON-KEY

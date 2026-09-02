@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The chevron on the panel, drawn pointing right. Which way it actually points is
+  the view's business: it is rotated to point *inward*, away from whichever
+  border the slider is standing on, so "open" is always the direction the panel
+  will grow in.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp" android:height="24dp"
+    android:viewportWidth="24" android:viewportHeight="24">
+    <path android:strokeColor="#000000" android:strokeWidth="2.6"
+        android:strokeLineCap="round" android:strokeLineJoin="round"
+        android:fillColor="@android:color/transparent"
+        android:pathData="M9.5,5.5 L16.5,12 L9.5,18.5" />
+</vector>

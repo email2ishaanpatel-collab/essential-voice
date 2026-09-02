@@ -20,3 +20,7 @@ publish/
 
 .kotlin/
 .idea/
+.design-backup/
+
+# The likes backend: project URL and anon key. See social/Likes.kt.
+supabase.properties

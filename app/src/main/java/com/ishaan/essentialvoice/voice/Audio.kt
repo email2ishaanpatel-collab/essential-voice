@@ -1,7 +1,6 @@
 package com.ishaan.essentialvoice.voice
 
 import kotlin.math.abs
-import kotlin.math.sqrt
 
 /** Sample rate whisper expects. Anything else has to be resampled first. */
 const val SAMPLE_RATE = 16_000
@@ -13,13 +12,6 @@ object Audio {
 
     /** Ceiling on the boost, so a silent room does not become amplified hiss. */
     private const val MAX_GAIN = 12f
-
-    fun rms(a: FloatArray): Float {
-        if (a.isEmpty()) return 0f
-        var sum = 0.0
-        for (v in a) sum += v.toDouble() * v
-        return sqrt(sum / a.size).toFloat()
-    }
 
     fun peak(a: FloatArray): Float {
         var p = 0f

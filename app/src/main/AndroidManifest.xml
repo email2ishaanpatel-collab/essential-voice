@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
-<manifest xmlns:android="http://schemas.android.com/apk/res/android">
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
 
     <uses-permission android:name="android.permission.RECORD_AUDIO" />
     <uses-permission android:name="android.permission.SYSTEM_ALERT_WINDOW" />
@@ -9,11 +10,63 @@
          permissions Play Protect blocks sideloaded apps for. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS" />
 
+    <!--
+      Connecting the earbuds the user picks, from the widget and the tile. Only
+      bonded devices are ever touched and no scanning is done, so BLUETOOTH_SCAN
+      is deliberately not requested. Not one of the permissions Play Protect
+      blocks a sideloaded app for.
+    -->
+    <uses-permission android:name="android.permission.BLUETOOTH_CONNECT" />
+
+    <!--
+      Game mode's three — WRITE_SETTINGS, ACCESS_NOTIFICATION_POLICY and
+      WRITE_SECURE_SETTINGS — are deliberately NOT declared here.
+
+      They belong to game/Levers.kt and to the island's Do Not Disturb fallback,
+      and both of those are switched off in this build (Features.GAME_MODE,
+      Features.ISLAND). A permission declared for code that cannot run is a
+      permission the user is asked to accept for nothing, and the list is the
+      only thing most people ever read about an app: on a sideloaded APK that
+      already asks for accessibility, the microphone and an overlay,
+      WRITE_SECURE_SETTINGS is the line that makes the set indistinguishable
+      from a banking trojan. Every permission below maps to something this build
+      can actually do.
+
+      Put all three back in the same commit that sets Features.GAME_MODE = true.
+      WRITE_SECURE_SETTINGS needs `tools:ignore="ProtectedPermissions"` and is
+      only ever held if it was granted over adb; the other two are special
+      accesses granted on screens only the user can reach, so declaring them
+      grants nothing by itself.
+    -->
+
     <!-- Only ever used to fetch the whisper model the user picks. -->
     <uses-permission android:name="android.permission.INTERNET" />
     <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE" />
 
     <uses-feature android:name="android.hardware.microphone" android:required="true" />
+
+    <!--
+      So game mode's list can show the apps somebody might play, and so it can
+      ask what category the app in front belongs to. Deliberately the launcher
+      intent rather than QUERY_ALL_PACKAGES: the difference is between seeing the
+      apps a person could open and being able to enumerate everything on their
+      phone, and the first is all this needs.
+    -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.MAIN" />
+            <category android:name="android.intent.category.LAUNCHER" />
+        </intent>
+        <!--
+            Package visibility for the phone's speech recogniser. Without this
+            SpeechRecognizer cannot see the service it is meant to bind to, and
+            ACTION_GET_LANGUAGE_DETAILS is a broadcast to a package this app
+            would otherwise not be allowed to name.
+        -->
+        <intent>
+            <action android:name="android.speech.RecognitionService" />
+        </intent>
+    </queries>
 
     <application
         android:allowBackup="false"
@@ -37,6 +90,92 @@
             android:name=".PlacementActivity"
             android:exported="false"
             android:label="@string/placement_title" />
+
+        <!--
+          One note, open for editing. Its own task affinity, because it is
+          usually opened from the home screen widget and pushing it onto the
+          settings app's back stack would mean backing out of a note into a
+          settings page nobody asked for. singleTop so tapping a second note
+          while it is open replaces the text instead of stacking screens.
+        -->
+        <activity
+            android:name=".notes.NoteEditActivity"
+            android:exported="false"
+            android:label="@string/note_edit_title"
+            android:launchMode="singleTop"
+            android:taskAffinity="com.ishaan.essentialvoice.note"
+            android:windowSoftInputMode="adjustResize" />
+
+        <!-- The notes list on the home screen. -->
+        <receiver
+            android:name=".notes.NotesWidget"
+            android:exported="false"
+            android:label="@string/widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/notes_widget_info" />
+        </receiver>
+
+        <!-- The buds card on the home screen. TOGGLE comes back here as a
+             broadcast rather than launching an activity, so a tap builds no task
+             and the launcher has nothing to animate. -->
+        <receiver
+            android:name=".buds.BudsWidget"
+            android:exported="false"
+            android:label="@string/buds_widget_label">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE" />
+                <action android:name="com.ishaan.essentialvoice.buds.TOGGLE" />
+            </intent-filter>
+            <meta-data
+                android:name="android.appwidget.provider"
+                android:resource="@xml/buds_widget_info" />
+        </receiver>
+
+        <!-- ACL_CONNECTED / ACL_DISCONNECTED are on Android's implicit-broadcast
+             exemption list, so a manifest receiver is still delivered them and
+             the buds card stays in step without any resident process. -->
+        <receiver
+            android:name=".buds.BudsStateReceiver"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.bluetooth.device.action.ACL_CONNECTED" />
+                <action android:name="android.bluetooth.device.action.ACL_DISCONNECTED" />
+                <action android:name="android.bluetooth.adapter.action.STATE_CHANGED" />
+            </intent-filter>
+        </receiver>
+
+        <!-- The same tap, one swipe from anywhere. -->
+        <service
+            android:name=".buds.BudsTile"
+            android:exported="true"
+            android:icon="@drawable/ic_logo"
+            android:label="@string/buds_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
+
+        <!-- Game mode, one swipe from inside the game — which is the only place
+             anyone would ever reach for it. -->
+        <!-- Off in the v3 test build: game mode is not in it. Disabled here
+             rather than deleted, so the tile comes back with Features.GAME_MODE
+             and nothing has to be remembered. -->
+        <service
+            android:name=".game.GameTile"
+            android:enabled="false"
+            android:exported="true"
+            android:icon="@drawable/ic_game"
+            android:label="@string/game_tile_label"
+            android:permission="android.permission.BIND_QUICK_SETTINGS_TILE">
+            <intent-filter>
+                <action android:name="android.service.quicksettings.action.QS_TILE" />
+            </intent-filter>
+        </service>
 
         <!-- No window, no transition: a launch is the whole interaction. -->
         <activity
@@ -90,6 +229,28 @@
             <meta-data
                 android:name="android.speech"
                 android:resource="@xml/recognition_service" />
+        </service>
+
+        <!--
+          Not a notification reader. getActiveSessions answers only a caller
+          holding MEDIA_CONTENT_CONTROL (signature|privileged) or naming an
+          enabled notification listener, and this is the second of those. Nothing
+          in MediaObserver reads a notification; see the class for the four other
+          routes to now-playing that were measured and are shut.
+        -->
+        <!-- Off in the v3 test build with the island, which is the only thing
+             that reads it. A disabled component is not offered in the
+             notification-access list at all, which is the point: nothing should
+             ask for notification access in a build that would not use it. -->
+        <service
+            android:name=".media.MediaObserver"
+            android:enabled="false"
+            android:exported="true"
+            android:label="@string/notification_listener_label"
+            android:permission="android.permission.BIND_NOTIFICATION_LISTENER_SERVICE">
+            <intent-filter>
+                <action android:name="android.service.notification.NotificationListenerService" />
+            </intent-filter>
         </service>
 
         <service

@@ -1,5 +1,6 @@
 package com.ishaan.essentialvoice.ui
 
+import androidx.activity.compose.BackHandler
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
@@ -14,6 +15,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -32,6 +34,8 @@ import com.ishaan.essentialvoice.Setup
  */
 @Composable
 fun LearnKeyScreen(
+    setup: com.ishaan.essentialvoice.SetupState,
+    settings: com.ishaan.essentialvoice.Settings,
     prefs: Prefs,
     accessibilityOn: Boolean,
     onDone: () -> Unit,
@@ -46,6 +50,26 @@ fun LearnKeyScreen(
     val ident = if (seenKey > 0) "KEYCODE" else "SCANCODE"
     val value = if (seenKey > 0) seenKey else seenScan
 
+    // Back means "stop learning", and it has to say so out loud.
+    //
+    // This screen is drawn over the home screen rather than instead of it, so
+    // without a handler here the back press went to the *page underneath* —
+    // closing a detail page nobody could see and leaving learn mode on, which
+    // leaves the Essential Key swallowed and doing nothing. Registered after
+    // the home screen's own, so it is the one that wins.
+    BackHandler { onDone() }
+
+    // While this screen is up, learn mode is alive. The service stops honouring
+    // the flag two minutes after this stops saying so, which is what makes a
+    // learn session that ends badly cost a couple of minutes instead of a dead
+    // key — see Prefs.learnModeLive.
+    LaunchedEffect(Unit) {
+        while (true) {
+            prefs.keepLearnModeAlive()
+            kotlinx.coroutines.delay(20_000)
+        }
+    }
+
     Column(
         Modifier
             .fillMaxSize()
@@ -56,11 +80,7 @@ fun LearnKeyScreen(
         EvText("Press the", type.display, color = EV.InkMuted)
         EvText("Essential Key", type.display)
         Spacer(Modifier.height(14.dp))
-        EvText(
-            "One short press is enough. While this screen is open the app is " +
-                "watching every hardware key, so press only the one you want.",
-            type.sub,
-        )
+        EvText("One short press is enough.", type.sub)
 
         Spacer(Modifier.height(34.dp))
 
@@ -94,6 +114,17 @@ fun LearnKeyScreen(
 
         Spacer(Modifier.height(16.dp))
 
+        // Directly under the box that is waiting for a press: the moment
+        // someone works out they have no key to press is the moment they are
+        // staring at it.
+        Panel(fill = EV.Surface) {
+            Disclosure("Don't have Essential Key?") {
+                OtherWaysPanel(setup, settings, prefs, bare = true)
+            }
+        }
+
+        Spacer(Modifier.height(16.dp))
+
         if (!accessibilityOn) {
             EvText(
                 "The accessibility service is off, so no key will arrive. " +
@@ -103,22 +134,21 @@ fun LearnKeyScreen(
             )
             Spacer(Modifier.height(14.dp))
             EvButton("Open accessibility settings") { Setup.openAccessibilitySettings(context) }
-        } else if (!seen) {
-            EvText("Waiting for a key…", type.mono)
-        } else {
+        } else if (seen && seenKey > 0) {
+            // Only ever said once something has actually arrived, and only when
+            // there is something to act on: that the key you just pressed might
+            // be the wrong one. The box itself says it is waiting, so it does
+            // not need a line underneath saying so as well.
             EvText(
-                if (seenKey > 0) {
-                    "If that is not the Essential Key, press again — the last key " +
-                        "you press is the one that gets saved."
-                } else {
-                    "Android has no name for this key, so it will be matched by its " +
-                        "raw scancode. That is normal for the Essential Key."
-                },
+                "If that is not the Essential Key, press again — the last key " +
+                    "you press is the one that gets saved.",
                 type.sub,
             )
         }
 
         Spacer(Modifier.weight(1f))
+
+        Spacer(Modifier.height(18.dp))
 
         Row(horizontalArrangement = Arrangement.spacedBy(10.dp)) {
             EvButton("Cancel", kind = EvButtonKind.Quiet, onClick = onDone)

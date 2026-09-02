@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The + inside the widget's yellow button.
+
+  A vector rather than a "+" typed into a TextView, which is what this used to
+  be. A glyph is positioned by the font's metrics, not by its ink: centring the
+  *text* left the drawn cross 6px — 2dp — below the middle of the circle, which
+  is small enough to look like a mistake rather than a style. Two bars about the
+  exact centre of the viewport cannot drift.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <path android:fillColor="#1B1B1D"
+        android:pathData="M10.7,4.5 h2.6 v15 h-2.6 z" />
+    <path android:fillColor="#1B1B1D"
+        android:pathData="M4.5,10.7 h15 v2.6 h-15 z" />
+</vector>

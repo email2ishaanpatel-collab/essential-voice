@@ -7,11 +7,12 @@ import android.service.voice.VoiceInteractionSession
 import android.service.voice.VoiceInteractionSessionService
 import android.speech.RecognitionService
 import android.util.Log
+import com.ishaan.essentialvoice.voice.Bar
 import com.ishaan.essentialvoice.voice.Dictation
 
 /**
- * Lets the phone's *assistant* gesture start a dictation — which is the only way
- * to reach the power button.
+ * Lets the phone's *assistant* gestures start a dictation — which is the only
+ * way to reach the power button, and the only way to reach the home bar.
  *
  * The power key never arrives at an accessibility service: the window manager
  * policy consumes it in `interceptKeyBeforeQueueing`, before anything else is
@@ -23,8 +24,21 @@ import com.ishaan.essentialvoice.voice.Dictation
  * → Digital assistant" launches whichever app holds that role, so registering as
  * an assistant turns the power button into a trigger by the front door.
  *
- * The system hands over a single launch, not a key down and up, so this behaves
- * like Tap mode: one press starts, the next sends.
+ * **The gesture-navigation home bar arrives here too**, and it is worth being
+ * clear about why, because it looks like it ought to need something special.
+ * Circle to Search is not a navigation-bar API: holding the handle is the
+ * ordinary assist invocation, and Google's version of it is gated behind a flag
+ * (`search_all_entrypoints_enabled`) on top of the same route. There is no way
+ * to take the handle directly — SystemUI watches it through a spy window that
+ * sees touches whatever is layered above it, so an overlay there would both
+ * break the swipe and double-fire — and there is no need to, because the
+ * assistant role *is* the extension point. Whichever gestures this phone routes
+ * to the assistant, holding the handle or swiping in from a bottom corner, land
+ * in [VoiceAssistSession.onShow] below.
+ *
+ * The system hands over a single launch, not a key down and up, so this cannot
+ * be push-to-talk: one invocation starts, and something on screen has to offer
+ * the way out. That is [Bar].
  */
 class VoiceAssistService : VoiceInteractionService() {
     override fun onReady() {
@@ -54,6 +68,12 @@ private class VoiceAssistSession(service: VoiceAssistSessionService) :
     override fun onShow(args: Bundle?, showFlags: Int) {
         super.onShow(args, showFlags)
         if (Dictation.isReady) {
+            // The bar, not the pill: there is no key being held, so the only
+            // thing that can end this is something on screen saying so. isBusy
+            // rather than isListening, because between a stop and the transcript
+            // the dictation is still running and this invocation is the *end* of
+            // one, not the start of another to claim.
+            if (!Dictation.isBusy) Bar.claim()
             Dictation.toggle()
         } else {
             Log.w("EVAssist", "accessibility service is off; nothing to toggle")

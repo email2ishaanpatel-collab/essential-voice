@@ -3,7 +3,42 @@
     <string name="app_name">Essential Voice</string>
     <string name="placement_title">Place the pill</string>
     <string name="accessibility_label">Essential Voice</string>
+    <!-- Shown in Settings > Notification access. Named for what the grant
+         is actually used for, not for the app, so the list does not read as
+         "Essential Voice wants your notifications". -->
+    <string name="notification_listener_label">Essential Voice — now playing</string>
     <string name="accessibility_summary">Hold the Essential Key to dictate</string>
     <string name="accessibility_description">Lets Essential Voice notice the Essential Key being held so it can record you, and place the transcribed text into the field you were typing in. Audio is transcribed on this phone and never leaves it.</string>
     <string name="trigger_label">Talk (Essential Voice)</string>
+
+    <!-- The home screen widget. -->
+    <string name="widget_label">Notes</string>
+    <string name="widget_heading">NOTES</string>
+    <string name="widget_add">+</string>
+    <string name="widget_add_description">New note</string>
+    <string name="widget_description">Your dictated notes on the home screen. Tap one to edit it.</string>
+    <!-- Shown when all three of the widget's kind switches are off. -->
+    <string name="widget_empty_off">Nothing to show. Notes, tasks and recordings are all switched off for this widget.</string>
+    <string name="widget_empty">No notes yet. Hold the key and start with the word “note”.</string>
+    <string name="widget_preview_one">Buy milk on the way back</string>
+    <string name="widget_preview_two">Ask about the deposit</string>
+    <string name="note_edit_title">Note</string>
+
+    <!-- The buds card and the Quick Settings tile. -->
+    <string name="buds_widget_label">Buds</string>
+    <string name="buds_widget_description">Connect your earbuds in one tap.</string>
+    <string name="buds_tile_label">Buds</string>
+    <string name="buds_tap_to_connect">Tap to connect</string>
+    <string name="buds_connected">Connected</string>
+    <string name="buds_connecting">Connecting\u2026</string>
+    <string name="buds_disconnecting">Disconnecting\u2026</string>
+    <string name="buds_none_chosen">Choose them in the app</string>
+    <string name="buds_bluetooth_off">Bluetooth off</string>
+    <string name="buds_open_settings">Tap for Settings</string>
+
+    <!-- Game mode's Quick Settings tile. -->
+    <string name="game_tile_label">Game mode</string>
+    <string name="game_tile_on">On</string>
+    <string name="game_tile_off">Tap to turn on</string>
+    <string name="game_tile_needs_setup">Set it up in the app</string>
 </resources>

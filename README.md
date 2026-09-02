@@ -1,8 +1,8 @@
 # Essential Voice — downloads
 
 Hold-to-talk dictation for the CMF Phone 2 Pro. Speech is transcribed on the
-phone by [whisper.cpp](https://github.com/ggml-org/whisper.cpp); nothing is
-uploaded.
+phone by [whisper.cpp](https://github.com/ggml-org/whisper.cpp); nothing you say
+is uploaded.
 
 **[Download the latest APK](../../releases/latest)**
 
@@ -47,7 +47,7 @@ and cannot update an existing install.
 
 Apache-2.0 — see `LICENSE`. Third-party components and their licences are listed
 in `NOTICE`, along with the one file in this repository that is not covered:
-the Nothing Headphone (1) product photograph.
+the Nothing Headphone (2) product photograph.
 
 ## "App blocked to protect your device"
 
@@ -101,10 +101,20 @@ Decide deliberately. It records your microphone, watches a hardware key, and can
 read and write the text field you are focused on. That is genuinely the
 permission set of spyware, and you have my word for it and nothing else.
 
-What it does not have is `INTERNET` access to anywhere but GitHub, no analytics,
-and no background service. Audio is transcribed on the phone by
-[whisper.cpp](https://github.com/ggml-org/whisper.cpp) and discarded. Nothing is
-stored and nothing is uploaded.
+What it does not have is analytics, an ad SDK, or a background service. Audio is
+transcribed on the phone by
+[whisper.cpp](https://github.com/ggml-org/whisper.cpp) and discarded: **nothing
+you say is stored, and nothing you say is ever uploaded.**
+
+It does reach the network in two places, and both are short enough to read for
+yourself:
+
+- **Updates** — reads one small file on GitHub to see whether a newer build
+  exists. It cannot install anything.
+- **Likes** — the heart on each card in the app. Tapping one sends that card's
+  name and a random id this install made up for itself, so the like can be
+  counted. No account, no hardware or advertising id, no text of any kind.
+  Clearing the app's data throws the id away. Don't tap it and nothing is sent.
 
 If that is not good enough, do not install it. That is a reasonable call, and
 Play Protect is not wrong to be suspicious.

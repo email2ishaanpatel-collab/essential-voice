@@ -1,7 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!--
+  The window behind Compose. It exists to be the right colour for the tenth of a
+  second before the first frame draws, which is why windowBackground is the page
+  colour and not white — a white flash on a dark page is the whole reason a
+  night theme is worth having in resources as well as in Kotlin.
+-->
 <resources>
     <style name="Theme.EssentialVoice" parent="android:Theme.Material.Light.NoActionBar">
-        <item name="android:windowBackground">@android:color/white</item>
+        <item name="android:windowBackground">@color/ev_page</item>
         <item name="android:navigationBarColor">@android:color/transparent</item>
         <item name="android:statusBarColor">@android:color/transparent</item>
         <item name="android:windowLightStatusBar">true</item>

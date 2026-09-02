@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- The connected card. Green rather than the brand yellow: connected is a
+     state, not an action, and green is what a connected pair reads as
+     everywhere else on the phone. Opaque rather than the translucent widget_surface: connected is the state worth seeing across the
+     room, and a busy wallpaper showing through would take that away. -->
+<shape xmlns:android="http://schemas.android.com/apk/res/android" android:shape="rectangle">
+    <solid android:color="@color/widget_connected" />
+    <corners android:radius="24dp" />
+</shape>

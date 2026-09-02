@@ -44,6 +44,8 @@ internal object WhisperLib {
         bestOf: Int,
         noSpeechThold: Float,
         initialPrompt: String,
+        audioCtx: Int,
+        singleSegment: Boolean,
     ): String
     @JvmStatic external fun nativeTrimHeap()
     @JvmStatic external fun nativeSystemInfo(): String

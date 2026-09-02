@@ -1,6 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
+<!-- Kept in step with the Kotlin palette in ui/Theme.kt, which is where every
+     colour the app actually draws comes from. These two exist only for things
+     resources have to answer on their own: the window background and the
+     launcher icon. -->
 <resources>
     <color name="ev_yellow">#FFD900</color>
-    <color name="ev_ink">#1B1B1D</color>
-    <color name="ev_white">#FFFFFF</color>
+    <color name="ev_page">#F4F4F4</color>
 </resources>

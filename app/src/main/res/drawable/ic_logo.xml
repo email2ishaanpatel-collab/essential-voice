@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  The app's mark, for use inside the app: the same six dots on the same hexagon
+  as the launcher icon, drawn to fill their box instead of being inset into the
+  adaptive-icon safe circle.
+
+  Same geometry, scaled: a regular hexagon of radius 43.5 about (54,54), which
+  puts the side dots at 54 ± 43.5·(√3/2) across and 54 ± 43.5/2 down. Untinted
+  black, so a ColorFilter can put it in whichever ink the palette is using.
+-->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="108"
+    android:viewportHeight="108">
+
+    <path android:fillColor="#000000"
+        android:pathData="M54,10.5 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path android:fillColor="#000000"
+        android:pathData="M54,97.5 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path android:fillColor="#000000"
+        android:pathData="M16.33,32.25 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path android:fillColor="#000000"
+        android:pathData="M16.33,75.75 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path android:fillColor="#000000"
+        android:pathData="M91.67,32.25 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+    <path android:fillColor="#000000"
+        android:pathData="M91.67,75.75 m-6.5,0 a6.5,6.5 0 1,0 13,0 a6.5,6.5 0 1,0 -13,0" />
+</vector>
