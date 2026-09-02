@@ -1,25 +1,45 @@
 {
-  "versionCode": 7,
-  "versionName": "2.0",
-  "url": "https://github.com/email2ishaanpatel-collab/essential-voice/releases/download/v2.0/essential-voice-2.0.apk",
-  "page": "https://github.com/email2ishaanpatel-collab/essential-voice/releases/tag/v2.0",
-  "notes": "Notes you can dictate straight into the pill, a dark mode that follows the phone, and a service that is far lighter on the battery.",
+  "versionCode": 8,
+  "versionName": "3.0",
+  "url": "https://github.com/email2ishaanpatel-collab/essential-voice/releases/download/v3.0/essential-voice-3.0.apk",
+  "page": "https://github.com/email2ishaanpatel-collab/essential-voice/releases/tag/v3.0",
+  "notes": "The Notes tab is a library — notes, tasks and recordings in one list — with two home screen widgets, buds you can connect in a tap, and a volume capsule the app draws itself.",
   "whatsNew": [
     {
-      "title": "Notes, dictated",
-      "body": "Start a sentence with the word “note” and the pill grows into a card instead of typing. Letting go of the key saves it. They have their own tab now, next to the settings."
+      "title": "Your library",
+      "body": "The Notes tab is a library now. Everything the key kept is in one list — notes, tasks and recordings — with a row of chips at the top to show one kind at a time or all of them together."
     },
     {
-      "title": "Dark mode",
-      "body": "Follows the phone, or the toggle under the name at the top of the page. Everything crossfades rather than snapping."
+      "title": "Tasks",
+      "body": "A second thing the key can keep, alongside notes rather than in place of them. Start the sentence with “task” and you get one with a circle you can tick off — ticking it strikes it through and leaves it in the list."
     },
     {
-      "title": "Much lighter on the battery",
-      "body": "The service was subscribed to every screen change in every app on the phone and threw them all away. It no longer asks for them, and speech is transcribed over as much audio as you actually spoke instead of a fixed thirty seconds."
+      "title": "Recordings",
+      "body": "And a third. Start with “record” and it keeps the audio instead of the words — the card is up the moment you let go, waveform already drawn, nothing waiting on a decode. Tap the disc to play it back. The words are found in the background and appear under the clip when they are ready."
     },
     {
-      "title": "A page that is easier to get through",
-      "body": "Setting up is one card, with the model picker inside it. The long explanations are behind info dots, and What's new is a dropdown."
+      "title": "Notes on the home screen",
+      "body": "A widget showing the same list as the library. It changes the moment a note does, tapping one opens it for editing, and the + starts an empty one."
+    },
+    {
+      "title": "Notes can be edited",
+      "body": "Tap the card while it is still on screen and the keyboard opens with the caret after the last word — or tap a note anywhere else, in the app or on the home screen. It saves itself when you leave."
+    },
+    {
+      "title": "Buds, one tap away",
+      "body": "Pick a pair you have already paired, then connect or disconnect them from a home screen widget or a Quick Settings tile. Nothing is scanned for and no address is hardcoded."
+    },
+    {
+      "title": "The app can draw the volume",
+      "body": "A capsule down the side of the screen instead of the panel the phone draws, with the side, height, thickness and how long it lingers all yours. Off until you turn it on — it changes what your volume buttons do."
+    },
+    {
+      "title": "A bar for a toggled dictation",
+      "body": "Started one without holding the key? A wide bar sits over the gesture handle so there is something to stop it with. A held key does not get one, because letting go is the stop control."
+    },
+    {
+      "title": "Fewer permissions, and a card for each feature",
+      "body": "Three permissions this build could never use are gone from the manifest. The front page is a card per feature now, each opening its own page instead of one long scroll."
     }
   ]
 }
