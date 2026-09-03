@@ -1,6 +1,6 @@
 # Essential Voice — downloads
 
-Hold-to-talk dictation for the CMF Phone 2 Pro. Speech is transcribed on the
+Hold-to-talk dictation for all phones. Speech is transcribed on the
 phone by [whisper.cpp](https://github.com/ggml-org/whisper.cpp); nothing you say
 is uploaded.
 
